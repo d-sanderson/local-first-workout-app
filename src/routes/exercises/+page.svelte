@@ -1,6 +1,9 @@
 <script lang="ts">
-	import { initialData, initialExercise } from '../data';
-	import { db, type Exercise } from '../db.js';
+	import { initialData, initialExercise } from '../../lib/data';
+	import { db } from '$lib/db.js';
+	import type { Exercise } from '$lib/types';
+
+	const muscleGroups = ['Back', 'Legs', 'Shoulders', 'Arms', 'Core', 'Cardio', 'Chest'];
 
 	let formData = $state(structuredClone(initialExercise));
 
@@ -9,6 +12,38 @@
 	let loadedId: number | null | undefined = $state(null);
 
 	let allExercises: null | Exercise[] = $state(null);
+
+	async function generateMuscleGroup() {
+		status = 'LOADING';
+		console.log(formData.name);
+		const response = await fetch('/api/completion', {
+			method: 'POST',
+			body: JSON.stringify({
+				messages: [
+					{
+						role: 'system',
+						content:
+							'You are an exercise expert who can generate concise and accurate muscle group descriptions. Do not include formatting like markdown or HTML.'
+					},
+					{
+						role: 'user',
+						content: `Create a muscle group for the following exercise ${formData.name}. The options are ${muscleGroups.join(
+							', '
+						)}`
+					}
+				]
+			})
+		});
+		try {
+			const data = await response.json();
+			console.log('content', data);
+			formData.type = data.response.result.response;
+			status = 'READY';
+		} catch (e) {
+			console.error(e);
+			status = 'ERROR';
+		}
+	}
 
 	async function generateDescription() {
 		status = 'LOADING';
@@ -23,7 +58,7 @@
 					},
 					{
 						role: 'user',
-						content: `Create a description for the following exercise ${formData.name} and muscle group ${formData.type}`
+						content: `Create a description for the following exercise ${formData.name}`
 					}
 				]
 			})
@@ -48,6 +83,15 @@
 				formData: data
 			});
 		} else {
+			if (!data.name) {
+				return;
+			}
+			if (!data.type) {
+				return;
+			}
+			if (!data.description) {
+				return;
+			}
 			const newExerciseId = await db.exercises.add({
 				date: new Date().toISOString(),
 				formData: data
@@ -139,17 +183,37 @@
 
 <section class="grid h-screen place-items-center">
 	<div class="w-full max-w-lg">
+		<div class="flex justify-end">
+			<button
+				class="focus:shadow-outline rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700 focus:outline-none"
+				type="button"
+				onclick={exportData}
+			>
+				Export Data
+			</button>
+		</div>
 		<form class="mb-4 rounded bg-white px-8 pb-8 pt-6 shadow-md">
-			<label class="mb-2 block text-sm font-bold text-gray-700" for="exercise">
-				Select an exercise
-			</label>
-			<select onchange={loadExercise} value={loadedId}>
-				{#if allExercises}
-					{#each allExercises as exercise (exercise.id)}
-						<option value={exercise.id}>{exercise.formData.name}</option>
-					{/each}
-				{/if}
-			</select>
+			<div class="mb-6 grid grid-flow-col">
+				<div>
+					<label class="mb-2 block text-sm font-bold text-gray-700" for="exercise">
+						Select an exercise
+					</label>
+					<select onchange={loadExercise} value={loadedId}>
+						{#if allExercises}
+							{#each allExercises as exercise (exercise.id)}
+								<option value={exercise.id}>{exercise.formData.name}</option>
+							{/each}
+						{/if}
+					</select>
+				</div>
+				<button
+					class="focus:shadow-outline h-fit place-self-end rounded bg-blue-500 p-3 font-bold text-white hover:bg-blue-700 focus:outline-none"
+					type="button"
+					onclick={newExercise}
+				>
+					New Exercise
+				</button>
+			</div>
 			<div class="mb-6">
 				<label class="mb-2 block text-sm font-bold text-gray-700" for="name"> Execise Name </label>
 				<input
@@ -166,14 +230,16 @@
 					id="type"
 					bind:value={formData.type}
 				>
-					<option value={formData.type} selected>{formData.type}</option>
-					<option value="back">Back</option>
-					<option value="legs">Legs</option>
-					<option value="shoulders">Shoulders</option>
-					<option value="arms">Arms</option>
-					<option value="core">Core</option>
-					<option value="cardio">Cardio</option>
+					{#each muscleGroups as type}
+						<option value={type} selected={formData.type === type}>{type}</option>
+					{/each}
 				</select>
+				<button
+					onclick={generateMuscleGroup}
+					class="bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700 focus:outline-none"
+				>
+					Generate Muscle Group
+				</button>
 			</div>
 			<div class="mb-6">
 				<label class="mb-2 block text-sm font-bold text-gray-700" for="description">
@@ -192,22 +258,18 @@
 						bind:value={formData.description}
 					></textarea>
 				{/if}
-				<button class="bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700 focus:outline-none" onclick={generateDescription}>Generate Description</button>
+				<button
+					class="bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700 focus:outline-none"
+					onclick={generateDescription}>Generate Description</button
+				>
 			</div>
-			<div class="flex items-center justify-between">
+			<div class="flex items-center justify-end gap-2">
 				<button
 					class="focus:shadow-outline rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700 focus:outline-none"
 					type="button"
 					onclick={(e) => save(formData)}
 				>
 					Save
-				</button>
-				<button
-					class="focus:shadow-outline rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700 focus:outline-none"
-					type="button"
-					onclick={newExercise}
-				>
-					New Exercise
 				</button>
 				{#if loadedId}
 					<button
@@ -218,13 +280,6 @@
 						Delete
 					</button>
 				{/if}
-				<button
-					class="focus:shadow-outline rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700 focus:outline-none"
-					type="button"
-					onclick={exportData}
-				>
-					Export Data
-				</button>
 			</div>
 		</form>
 		<p class="text-center text-xs text-gray-500">
