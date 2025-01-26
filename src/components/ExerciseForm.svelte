@@ -159,10 +159,11 @@
 		console.log('loading data from supabase');
 		const { data } = await supabase
 			.from('exercises')
-			.select('id, date, formData')
+			.select('date, formData')
 			.eq('userId', props.clerk.user.id);
 
-		await db.exercises.bulkAdd(data as Exercise[]);
+	  // TODO: don't use type assertion here
+		await bulkInsertDataToIndexDB(data as Exercise[]);
 	};
 
 	const bulkInsertDataToIndexDB = async (exerciseData: Exercise[] = initialData.exercises) => {
@@ -170,6 +171,7 @@
 		if (data.length === 0) {
 			await db.exercises.bulkAdd(exerciseData);
 			loadAllExercises();
+			loadRecentExercise();
 		}
 	};
 
@@ -207,13 +209,8 @@
 		status = 'READY';
 	};
 
-	// on mount seed data, load exercise, and display the most recent exercise
 	$effect(() => {
-		// seed data
-		// bulkInsertDataToIndexDB();
 		loadFromSupabase();
-		loadAllExercises();
-		loadRecentExercise();
 	});
 
 	$effect(() => {
