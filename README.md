@@ -1,38 +1,36 @@
-# sv
+# Local Workouts
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A SvelteKit app for tracking workouts, with Clerk for authentication, Dexie for client-side database, Tailwind CSS for styling, TypeScript for type safety, ESLint for code linting, and Prettier for code formatting.
 
-## Creating a project
+## Features
 
-If you're seeing this, you've probably already done this step. Congrats!
+- **Clerk**: A user authentication system that allows users to sign up, sign in, and manage their account.
+- **Dexie**: A client-side database that uses IndexedDB to store users' workout data locally.
+- **Tailwind CSS**: A utility-first CSS framework for styling the app.
+- **TypeScript**: A typed superset of JavaScript that provides type safety and better code maintainability.
+- **ESLint**: A code linter that checks the code for errors and suggests improvements.
+- **Prettier**: A code formatter that formats the code according to a set of rules.
 
-```bash
-# create a new project in the current directory
-npx sv create
+## Development
 
-# create a new project in my-app
-npx sv create my-app
-```
+1. Install dependencies with `npm install`
+2. Start the development server with `npm run dev`
+3. Open [http://localhost:3000](http://localhost:3000)
 
-## Developing
+## Deployment
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+1. Build the app with `npm run build`
+2. Deploy the app with `npm run deploy`
 
-```bash
-npm run dev
+## License
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
-## Building
+## Contributing
 
-To create a production version of your app:
+Contributions are welcome! Please open an issue or a pull request to contribute to the project.
 
-```bash
-npm run build
-```
+## Acknowledgments
 
-You can preview the production build with `npm run preview`.
+This project was inspired by [SvelteKit's official template](https://github.com/sveltejs/kit/tree/master/packages/create-svelte#readme).
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
