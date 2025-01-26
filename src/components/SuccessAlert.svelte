@@ -3,7 +3,7 @@
 </script>
 
 <div
-	class="mb-4 flex items-center rounded-lg border border-green-300 bg-green-50 p-4 text-sm text-green-800 dark:border-green-800 dark:bg-gray-800 dark:text-green-400"
+	class="mb-4 flex items-center rounded-lg border border-green-300 bg-green-50 p-4 text-sm text-green-800 dark:border-green-800 dark:bg-gray-800 dark:text-white"
 	role="alert"
 >
 	<svg
@@ -20,5 +20,8 @@
 	<span class="sr-only">Info</span>
 	<div>
 		{props.message}
+	</div>
+	<div class="ml-4">
+		{@render props.children?.()}
 	</div>
 </div>

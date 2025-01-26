@@ -12,7 +12,6 @@
 
 	// Clear the local DB if the user signs out
 	$effect(() => {
-		// console.log(clerk);
 		if (!clerk.user) {
 			console.log('clearing db');
 			db.delete();
@@ -23,8 +22,9 @@
 <div class="flex justify-center">
 	<SignedIn>
 		<div class="flex flex-col ">
-			<SuccessAlert message={`Welcome back, ${clerk.user?.firstName}!`} />
-			<a class="font-medium text-pink-600 hover:underline dark:text-pink-500" href="/exercises">Go to Exercises</a>
+			<SuccessAlert message={`Welcome back, ${clerk.user?.firstName}!`}>
+				<a class="font-medium text-pink-600 hover:underline dark:text-pink-500" href="/exercises">Go to Exercises</a>
+			</SuccessAlert>
 		</div>
 	</SignedIn>
 	<SignedOut>
