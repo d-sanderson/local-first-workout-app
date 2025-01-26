@@ -18,3 +18,5 @@ export interface Exercise {
   id?: number;
   formData: typeof initialExercise;
 }
+
+export type LoadingState =  'LOADING' | 'ERROR' | 'READY'
