@@ -76,7 +76,6 @@
 	}
 
 	const save = async (data: typeof initialExercise) => {
-		console.log('saving', data);
 		if (loadedId) {
 			await db.exercises.update(loadedId, {
 				date: new Date().toISOString(),
@@ -96,9 +95,9 @@
 				date: new Date().toISOString(),
 				formData: data
 			});
-			loadAllExercises();
 			loadedId = newExerciseId;
 		}
+		loadAllExercises();
 	};
 
 	const loadExercise = async (event: Event) => {
@@ -200,7 +199,7 @@
 					</label>
 					<select onchange={loadExercise} value={loadedId}>
 						{#if allExercises}
-							{#each allExercises as exercise (exercise.id)}
+							{#each allExercises as exercise}
 								<option value={exercise.id}>{exercise.formData.name}</option>
 							{/each}
 						{/if}
