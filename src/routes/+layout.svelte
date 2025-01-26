@@ -10,12 +10,13 @@
 
 <div class="flex justify-end gap-4 p-2">
 	<SignedIn>
-		<UserButton afterSignOutUrl="/" />
+		<UserButton afterSignOutUrl="/" showName={true} />
 	</SignedIn>
 	<SignedOut>
 		<SignInButton
 			class="font-medium text-blue-600 hover:underline dark:text-blue-500"
 			mode="modal"
+			
 		/>
 		<SignUpButton
 			class="font-medium text-blue-600 hover:underline dark:text-blue-500"

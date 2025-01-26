@@ -6,7 +6,7 @@
 
 <ClerkLoaded let:clerk>
 	{#if !clerk?.user}
-		<LoginPrompt />
+		<LoginPrompt {clerk} />
 	{:else}
 		<ExerciseForm {clerk} />
 	{/if}

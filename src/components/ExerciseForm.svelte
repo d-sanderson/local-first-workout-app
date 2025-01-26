@@ -3,7 +3,6 @@
 	import { db, exportData } from '$lib/db';
 	import { supabase } from '$lib/supabaseClient';
 	import type { Exercise, LoadingState } from '$lib/types';
-	import SuccessAlert from './SuccessAlert.svelte';
 	let props = $props();
 
 	// State
@@ -160,7 +159,7 @@
 		bulkInsertDataToIndexDB(data.data as Exercise[]);
 	};
 
-	const bulkInsertDataToIndexDB = async (exerciseData: Exercise[]) => {
+	const bulkInsertDataToIndexDB = async (exerciseData: Exercise[] = initialData.exercises) => {
 		const data = await db.exercises.toArray();
 		if (data.length === 0) {
 			await db.exercises.bulkAdd(exerciseData);
@@ -181,7 +180,7 @@
 	// on mount seed data, load exercise, and display the most recent exercise
 	$effect(() => {
 		// seed data
-		// seedExerciseData();
+		bulkInsertDataToIndexDB();
 		loadAllExercises();
 		loadRecentExercise();
 	});
@@ -195,7 +194,6 @@
 
 <section class="grid h-screen place-items-center">
 	<div class="w-full max-w-lg p-2">
-		<SuccessAlert message={`Welcome back, ${props.clerk.user.firstName}`} />
 		<div class="flex justify-end">
 			<button
 				class="focus:shadow-outline rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700 focus:outline-none"
