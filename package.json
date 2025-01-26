@@ -37,6 +37,7 @@
 		"vite": "^6.0.0"
 	},
 	"dependencies": {
+		"@supabase/supabase-js": "^2.48.1",
 		"clerk-sveltekit": "^0.4.2",
 		"dexie": "^4.0.11"
 	}

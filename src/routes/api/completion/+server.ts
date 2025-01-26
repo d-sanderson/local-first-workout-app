@@ -4,7 +4,6 @@ import { json } from "@sveltejs/kit";
 
 async function useCloudFlareAI(model: string = '@cf/meta/llama-3-8b-instruct', payload: string) {
   const url = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/ai/run/${model}`;
-  console.log(payload)
   const response = await fetch(
     url,
     {

@@ -1,11 +1,13 @@
 <script lang="ts">
-	let props = $props();
 	import { initialData, initialExercise } from '$lib/data';
 	import { db, exportData } from '$lib/db';
+	import { supabase } from '$lib/supabaseClient';
 	import type { Exercise, LoadingState } from '$lib/types';
 	import SuccessAlert from './SuccessAlert.svelte';
+	let props = $props();
 
 	// State
+	// TODO: move this to indexDB?
 	const muscleGroups = ['Back', 'Legs', 'Shoulders', 'Arms', 'Core', 'Cardio', 'Chest'];
 
 	let formData = $state(structuredClone(initialExercise));
@@ -134,19 +136,52 @@
 		allExercises = await db.exercises.orderBy('date').toArray();
 	};
 
-	const seedExerciseData = async () => {
+	const saveToSupabase = async () => {
+		const exercises = await db.exercises.toArray();
+		console.log(exercises);
+		await fetch('/api/sync-exercises', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				exercises,
+				userId: props.clerk.user.id
+			})
+		});
+	};
+
+	const loadFromSupabase = async () => {
+		const data = await supabase
+			.from('exercises')
+			.select('id, date, formData')
+			.eq('userId', props.clerk.user.id);
+
+		bulkInsertDataToIndexDB(data.data as Exercise[]);
+	};
+
+	const bulkInsertDataToIndexDB = async (exerciseData: Exercise[]) => {
 		const data = await db.exercises.toArray();
-		console.log(data);
 		if (data.length === 0) {
-			await db.exercises.bulkAdd(initialData.exercises);
+			await db.exercises.bulkAdd(exerciseData);
 			loadAllExercises();
 		}
+	};
+
+	const loadRecentExercise = async () => {
+		status = 'LOADING';
+		const mostRecentExercise = await db.exercises.orderBy('date').last();
+		if (mostRecentExercise) {
+			formData = mostRecentExercise.formData;
+			loadedId = mostRecentExercise.id;
+		}
+		status = 'READY';
 	};
 
 	// on mount seed data, load exercise, and display the most recent exercise
 	$effect(() => {
 		// seed data
-		seedExerciseData();
+		// seedExerciseData();
 		loadAllExercises();
 		loadRecentExercise();
 	});
@@ -156,16 +191,6 @@
 			saveExercise($state.snapshot(formData));
 		}
 	});
-
-	async function loadRecentExercise() {
-		status = 'LOADING';
-		const mostRecentExercise = await db.exercises.orderBy('date').last();
-		if (mostRecentExercise) {
-			formData = mostRecentExercise.formData;
-			loadedId = mostRecentExercise.id;
-		}
-		status = 'READY';
-	}
 </script>
 
 <section class="grid h-screen place-items-center">
@@ -269,6 +294,8 @@
 					</button>
 				{/if}
 			</div>
+			<button onclick={saveToSupabase}>Save to Supabase</button>
+			<button onclick={loadFromSupabase}>Load from Supabase</button>
 		</form>
 		<p class="text-center text-xs text-gray-500">
 			&copy;2025 Improve yo self. All rights reserved.
