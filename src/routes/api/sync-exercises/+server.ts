@@ -6,10 +6,9 @@ export async function POST({ request }) {
   const payload = await request.json();
 
   const promises = payload.exercises.map((exercise: Exercise) =>
-    supabase.from('exercises').insert({ ...exercise, userId: payload.userId })
+    supabase.from('exercises').upsert({ ...exercise, userId: payload.userId })
   );
 
-  const results = await Promise.all(promises);
-  console.log(results)
+  const results = await Promise.allSettled(promises);
   return json({ status: 200, results });
 }
