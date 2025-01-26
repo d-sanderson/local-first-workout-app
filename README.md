@@ -14,8 +14,9 @@ A SvelteKit app for tracking workouts, with Clerk for authentication, Dexie for 
 ## Development
 
 1. Install dependencies with `npm install`
-2. Start the development server with `npm run dev`
-3. Open [http://localhost:3000](http://localhost:3000)
+2. Add .env variables for Clerk and Cloudflare (see .env.example)
+3. Start the development server with `npm run dev`
+4. Open [http://localhost:3000](http://localhost:3000)
 
 ## Deployment
 
