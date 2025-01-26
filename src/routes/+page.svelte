@@ -1,1 +1,5 @@
-<h1>Login</h1>
+<script>
+	import LoginPrompt from "../components/LoginPrompt.svelte";
+</script>
+
+<LoginPrompt />

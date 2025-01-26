@@ -1,4 +1,5 @@
 <script lang="ts">
+  let props = $props()
 	import { initialData, initialExercise } from '$lib/data';
 	import { db, exportData } from '$lib/db';
 	import type { Exercise, LoadingState } from '$lib/types';

@@ -37,6 +37,7 @@
 		"vite": "^6.0.0"
 	},
 	"dependencies": {
+		"clerk-sveltekit": "^0.4.2",
 		"dexie": "^4.0.11"
 	}
 }

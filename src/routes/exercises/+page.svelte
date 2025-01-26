@@ -1,5 +1,13 @@
 <script lang="ts">
 	import ExerciseForm from '../../components/ExerciseForm.svelte';
+	import ClerkLoaded from 'clerk-sveltekit/client/ClerkLoaded.svelte';
+	import LoginPrompt from '../../components/LoginPrompt.svelte';
 </script>
 
-<ExerciseForm />
+<ClerkLoaded let:clerk>
+	{#if !clerk?.user}
+		<LoginPrompt />
+	{:else}
+		<ExerciseForm {clerk} />
+	{/if}
+</ClerkLoaded>
