@@ -1,9 +1,11 @@
 <script>
 	import SignInButton from "clerk-sveltekit/client/SignInButton.svelte";
 	import SignUpButton from "clerk-sveltekit/client/SignUpButton.svelte";
+	import WelcomeAlert from "./SuccessAlert.svelte";
+
 </script>
 
-		<div class="flex h-screen items-center justify-center">
+		<div class="flex justify-center">
 			<div
 				class="mb-4 flex items-start rounded-lg border border-blue-300 bg-blue-50 p-4 text-sm text-blue-800 dark:border-blue-800 dark:bg-gray-800 dark:text-blue-400"
 				role="alert"

@@ -1,10 +1,11 @@
 <script lang="ts">
-  let props = $props()
+	let props = $props();
 	import { initialData, initialExercise } from '$lib/data';
 	import { db, exportData } from '$lib/db';
 	import type { Exercise, LoadingState } from '$lib/types';
+	import SuccessAlert from './SuccessAlert.svelte';
 
-  // State
+	// State
 	const muscleGroups = ['Back', 'Legs', 'Shoulders', 'Arms', 'Core', 'Cardio', 'Chest'];
 
 	let formData = $state(structuredClone(initialExercise));
@@ -15,7 +16,7 @@
 
 	let allExercises: null | Exercise[] = $state(null);
 
-  // AI
+	// AI
 	const generateDescription = async () => {
 		status = 'LOADING';
 		const response = await fetch('/api/completion', {
@@ -78,7 +79,7 @@
 		}
 	};
 
-  // CRUD
+	// CRUD
 	const saveExercise = async (data: typeof initialExercise) => {
 		if (loadedId) {
 			await db.exercises.update(loadedId, {
@@ -142,14 +143,13 @@
 		}
 	};
 
-  // on mount seed data, load exercise, and display the most recent exercise
+	// on mount seed data, load exercise, and display the most recent exercise
 	$effect(() => {
 		// seed data
 		seedExerciseData();
 		loadAllExercises();
 		loadRecentExercise();
 	});
-
 
 	$effect(() => {
 		if (status === 'READY') {
@@ -169,7 +169,8 @@
 </script>
 
 <section class="grid h-screen place-items-center">
-	<div class="w-full max-w-lg">
+	<div class="w-full max-w-lg p-2">
+		<SuccessAlert message={`Welcome back, ${props.clerk.user.firstName}`} />
 		<div class="flex justify-end">
 			<button
 				class="focus:shadow-outline rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700 focus:outline-none"
