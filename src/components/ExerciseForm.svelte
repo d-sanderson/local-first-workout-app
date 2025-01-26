@@ -151,12 +151,18 @@
 	};
 
 	const loadFromSupabase = async () => {
-		const data = await supabase
+		const localData = await db.exercises.toArray();
+		if (localData.length > 0) {
+			console.log('skipping supabase sync, local data already exists');
+			return;
+		}
+		console.log('loading data from supabase');
+		const { data } = await supabase
 			.from('exercises')
 			.select('id, date, formData')
 			.eq('userId', props.clerk.user.id);
 
-		bulkInsertDataToIndexDB(data.data as Exercise[]);
+		await db.exercises.bulkAdd(data as Exercise[]);
 	};
 
 	const bulkInsertDataToIndexDB = async (exerciseData: Exercise[] = initialData.exercises) => {
@@ -167,20 +173,45 @@
 		}
 	};
 
+	const getLatestLocalExercise = async () => {
+		return await db.exercises.orderBy('date').last();
+	};
+
+	const getLatestSupabaseExercise = async (userId: string) => {
+		const { data } = await supabase
+			.from('exercises')
+			.select('id, date, formData')
+			.eq('userId', userId)
+			.order('date', { ascending: false })
+			.limit(1);
+		return data?.[0];
+	};
+
 	const loadRecentExercise = async () => {
 		status = 'LOADING';
-		const mostRecentExercise = await db.exercises.orderBy('date').last();
-		if (mostRecentExercise) {
-			formData = mostRecentExercise.formData;
-			loadedId = mostRecentExercise.id;
+
+		const localExercise = await getLatestLocalExercise();
+		// if there is a local exercise, use that
+		if (localExercise) {
+			formData = localExercise.formData;
+			loadedId = localExercise.id;
+		// if there is no local exercise (usually first load), check if there is a supabase exercise
+		} else {
+			const supabaseExercise = await getLatestSupabaseExercise(props.clerk.user.id);
+			if (supabaseExercise) {
+				formData = supabaseExercise.formData;
+				loadedId = supabaseExercise.id;
+			}
 		}
+
 		status = 'READY';
 	};
 
 	// on mount seed data, load exercise, and display the most recent exercise
 	$effect(() => {
 		// seed data
-		bulkInsertDataToIndexDB();
+		// bulkInsertDataToIndexDB();
+		loadFromSupabase();
 		loadAllExercises();
 		loadRecentExercise();
 	});
@@ -292,8 +323,10 @@
 					</button>
 				{/if}
 			</div>
-			<button onclick={saveToSupabase}>Save to Supabase</button>
-			<button onclick={loadFromSupabase}>Load from Supabase</button>
+			<button
+				class="focus:shadow-outline rounded bg-green-800 px-4 py-2 font-bold text-white hover:bg-green-700 focus:outline-none"
+				onclick={saveToSupabase}>Save to Supabase</button
+			>
 		</form>
 		<p class="text-center text-xs text-gray-500">
 			&copy;2025 Improve yo self. All rights reserved.
